@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <title>Ingressos | Green Valley</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="/_external/qrcode.min.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <header class="gw-header">
+      <a class="gw-brand" href="/" aria-label="GuichêWeb, voltar ao site">
+        <span class="brand-ticket" aria-hidden="true">▣</span><span>guichê<span>web</span></span>
+      </a>
+      <div class="header-actions">
+        <a class="header-back" href="/">← <span>Voltar ao Site</span></a>
+        <span class="header-divider" aria-hidden="true"></span>
+        <span class="header-login">ENTRAR</span>
+      </div>
+    </header>
+
+    <main id="app" class="app-shell">
+      <section id="loading" class="loading-state" role="status">Carregando eventos…</section>
+      <section id="error" class="error-state" role="alert" hidden></section>
+
+      <section id="events-view" class="events-view" hidden>
+        <div class="events-heading">
+          <div><p class="eyebrow">GREENVALLEY · CAMBORIÚ/SC</p><h1>Eventos em Destaque</h1></div>
+          <label class="event-search"><span aria-hidden="true">⌕</span><input id="event-search" type="search" placeholder="Pesquisar evento" autocomplete="off"></label>
+        </div>
+        <div id="event-cards" class="events-grid"></div>
+        <p id="empty-search" class="empty-search" hidden>Nenhum evento encontrado.</p>
+      </section>
+
+      <section id="event-view" class="event-view" hidden>
+        <div id="event-hero" class="event-hero">
+          <div class="hero-caption"><span class="hero-mark">GREENVALLEY</span><span id="hero-date"></span><strong id="hero-artist"></strong></div>
+        </div>
+        <div class="event-content">
+          <div class="event-intro">
+            <div class="event-poster-wrap"><img id="event-image" class="event-poster" alt=""><p class="share-label">Compartilhar <span>◉　f　↗</span></p></div>
+            <div class="event-copy">
+              <p class="eyebrow">EVENTO</p><h1 id="event-title"></h1>
+              <p id="event-date" class="event-meta"></p><p id="event-time" class="event-meta"></p>
+              <p id="event-venue" class="event-meta venue-meta"></p><p id="event-address" class="event-address"></p>
+              <p id="event-description" class="event-description"></p>
+              <span id="age-label" class="age-label"></span>
+            </div>
+          </div>
+          <section class="tickets-area" aria-labelledby="tickets-heading">
+            <h2 id="tickets-heading">ADQUIRA SEU INGRESSO AGORA</h2>
+            <p class="tickets-note">Escolha o setor e a quantidade de ingressos.</p>
+            <div id="ticket-sections" class="ticket-sections"></div>
+          </section>
+        </div>
+        <div id="ticket-dock" class="ticket-dock" hidden>
+          <div class="dock-total"><span id="dock-count">0 ITENS NO CARRINHO</span><strong id="dock-total">R$ 0,00</strong><span id="dock-fees" class="dock-fees"></span></div>
+          <div class="dock-action"><span>Tudo pronto?</span><button id="continue-checkout" class="button-black" type="button">CONTINUAR &gt;</button></div>
+        </div>
+      </section>
+
+      <section id="cart-view" class="cart-view" hidden>
+        <div class="cart-main">
+          <div class="cart-card">
+            <h1 class="cart-title">Carrinho</h1>
+            <p class="cart-subtitle">Você tem <strong id="cart-count">0</strong> item(s) no seu carrinho</p>
+            <div class="cart-table-header"><span class="th-item">Ingresso</span><span class="th-qty">Quantidade</span><span class="th-val">Valor</span></div>
+            <div id="cart-items" class="cart-items"></div>
+            <div class="cart-totals"><span>Taxas: <strong id="cart-fees"></strong></span><span class="cart-grand-total">TOTAL: <strong id="cart-total"></strong></span></div>
+            <p class="cart-terms">Ao clicar no botão FINALIZAR, você confirma os dados do seu pedido.</p>
+            <div class="cart-actions"><a id="back-to-tickets" class="cart-back" href="#">&lt; Voltar</a><button id="to-checkout" class="button-black" type="button">Finalizar &gt;</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="checkout-view" class="checkout-view" hidden>
+        <div class="checkout-layout">
+          <div class="checkout-main">
+            <a class="step-back" id="back-to-cart" href="#">← Voltar para o carrinho</a>
+            <h1 class="checkout-title">Dados do comprador</h1>
+            <p class="checkout-intro">Informe os dados que serão associados ao pedido e aos ingressos.</p>
+            <form id="buyer-form" novalidate>
+              <div class="buyer-grid">
+                <label>Nome completo<input id="buyer-name" autocomplete="name" maxlength="120" required></label>
+                <label>E-mail<input id="buyer-email" type="email" autocomplete="email" maxlength="180" required></label>
+                <label>CPF<input id="buyer-cpf" inputmode="numeric" autocomplete="off" maxlength="14" required></label>
+                <label>Celular<input id="buyer-phone" inputmode="tel" autocomplete="tel" maxlength="20" required></label>
+              </div>
+              <h2 class="payment-title">Escolha a forma de pagamento</h2>
+              <div class="payment-option selected"><span class="pix-symbol" aria-hidden="true">◆</span><span><strong>Pix</strong><small>Aprovação após a confirmação do pagamento</small></span><span class="radio-mark" aria-hidden="true"></span></div>
+              <p id="checkout-notice" class="checkout-notice" role="status" hidden>O pagamento está em configuração. As compras serão liberadas quando a conexão do sistema estiver pronta.</p>
+              <p id="form-error" class="form-error" role="alert" hidden></p>
+              <button id="create-order" class="button-green checkout-submit" type="submit">Finalizar pedido</button>
+              <p class="secure-note">Compra processada neste site. A cobrança é enviada ao PixVault e os ingressos são emitidos após a confirmação.</p>
+            </form>
+          </div>
+          <aside class="order-sidebar">
+            <div class="sidebar-timer"><span>RESUMO DO PEDIDO</span><span id="sidebar-step">1 de 2</span></div>
+            <div class="sidebar-event"><img id="sidebar-image" alt=""><div><strong id="sidebar-title"></strong><span id="sidebar-details"></span></div></div>
+            <div id="checkout-lines" class="sidebar-lines"></div>
+            <div class="sidebar-total"><span>Total</span><strong id="sidebar-total"></strong></div>
+            <p class="sidebar-fees">As taxas de serviço estão incluídas no total.</p>
+            <div class="sidebar-brand">Desenvolvido por <strong class="mini-brand">▣ guichê<span>web</span></strong></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="payment-view" class="checkout-view" hidden>
+        <div class="checkout-layout payment-layout">
+          <div class="payment-main">
+            <div id="payment-pending">
+              <p class="eyebrow">PAGAMENTO VIA PIX</p><h1 class="pix-title">Finalize o pagamento com o Pix</h1>
+              <p class="pix-instructions">Escaneie o QR Code abaixo ou copie o código e cole no aplicativo do seu banco.</p>
+              <img id="pix-qr" class="pix-qr" alt="QR Code Pix para pagamento">
+              <p class="pix-value-label">Valor do pedido</p><strong id="payment-total" class="payment-total"></strong>
+              <label for="pix-code" class="pix-code-label">Pix copia e cola</label>
+              <textarea id="pix-code" rows="3" readonly></textarea>
+              <button id="copy-pix" class="button-green copy-button" type="button">Copiar código de pagamento</button>
+              <p id="payment-status" class="status-line" role="status">Aguardando confirmação do Pix…</p>
+              <p class="order-cancel-note">Pedido <span id="payment-order-id"></span> · A tela atualizará quando o pagamento for confirmado.</p>
+            </div>
+            <div id="tickets-panel" class="tickets-panel" hidden>
+              <p class="eyebrow">PAGAMENTO CONFIRMADO</p><h1>Seus ingressos estão prontos</h1>
+              <p class="pix-instructions">Guarde os códigos abaixo. Cada ingresso pode ser usado uma única vez na entrada.</p>
+              <div id="issued-tickets" class="issued-tickets"></div>
+              <button class="button-black print-button" type="button" onclick="window.print()">Imprimir ingressos</button>
+              <a class="step-back" href="/">Voltar ao site</a>
+            </div>
+          </div>
+          <aside class="order-sidebar">
+            <div class="sidebar-timer"><span>SEU PEDIDO</span><span>PIX</span></div>
+            <div class="sidebar-event"><img id="payment-image" alt=""><div><strong id="payment-event-title"></strong><span id="payment-event-details"></span></div></div>
+            <div id="payment-lines" class="sidebar-lines"></div>
+            <div class="sidebar-total"><span>Total</span><strong id="payment-sidebar-total"></strong></div>
+            <p class="sidebar-fees">Após a confirmação, seus ingressos ficam disponíveis nesta página.</p>
+            <div class="sidebar-brand">Desenvolvido por <strong class="mini-brand">▣ guichê<span>web</span></strong></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer id="site-footer" class="gw-footer">
+      <div class="footer-social"><span>◎</span><span>f</span><span>▶</span><span>𝕏</span></div>
+      <div class="footer-content"><strong>GREENVALLEY</strong><span>Ingressos e informações dos eventos</span><a href="/">Voltar ao site</a></div>
+      <p class="copyright">© Greenvalley · Compra segura de ingressos</p>
+    </footer>
+  </body>
+</html>

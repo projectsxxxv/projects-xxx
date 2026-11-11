@@ -1,0 +1,15 @@
+.git
+.data
+.env
+.env.*
+**/.env
+**/.env.*
+**/.vercel
+**/.vercel/
+gateway_config.json
+**/gateway_config.json
+*.zip
+entrega-cliente
+guicheweb-artbat
+deploy-vps
+imagens

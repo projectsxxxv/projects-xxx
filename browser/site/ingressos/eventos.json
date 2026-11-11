@@ -1,0 +1,225 @@
+{
+  "events": [
+    {
+      "venue": "Greenvalley",
+      "slug": "artbat-no-greenvalley",
+      "image": "/imagens/brazil 1 v5 4x5 greenvalley (1).avif",
+      "address": "Rua Antônio Lopes Gonçalves Bastos, 1083, Rio Pequeno - Camboriú, SC - CEP: 88343-412",
+      "city": "Camboriú, SC",
+      "description": "O aguardado retorno de ARTBAT ao Greenvalley já tem data marcada.",
+      "date": "02/01/2027",
+      "artist": "ARTBAT",
+      "sections": [
+        {
+          "name": "Frontstage - Social",
+          "tickets": [
+            {
+              "id": "artbat_front_soc_m",
+              "title": "Frontstage - Masculino (Social)",
+              "batch": "4º LOTE + 1KG DE ALIMENTO",
+              "priceCents": 24000,
+              "feeCents": 3600
+            },
+            {
+              "id": "artbat_front_soc_f",
+              "title": "Frontstage - Feminino (Social)",
+              "batch": "3º LOTE + 1KG DE ALIMENTO",
+              "priceCents": 21000,
+              "feeCents": 3150
+            }
+          ]
+        },
+        {
+          "name": "Frontstage - Meia",
+          "tickets": [
+            {
+              "id": "artbat_front_meia_m",
+              "title": "Frontstage - Masculino (Meia)",
+              "batch": "4º LOTE",
+              "priceCents": 22000,
+              "feeCents": 3300
+            },
+            {
+              "id": "artbat_front_meia_f",
+              "title": "Frontstage - Feminino (Meia)",
+              "batch": "3º LOTE",
+              "priceCents": 19000,
+              "feeCents": 2850
+            }
+          ]
+        },
+        {
+          "name": "Frontstage - Inteira",
+          "tickets": [
+            {
+              "id": "artbat_front_int_m",
+              "title": "Frontstage - Masculino (Inteira)",
+              "batch": "4º LOTE",
+              "priceCents": 44000,
+              "feeCents": 6600
+            },
+            {
+              "id": "artbat_front_int_f",
+              "title": "Frontstage - Feminino (Inteira)",
+              "batch": "3º LOTE",
+              "priceCents": 38000,
+              "feeCents": 5700
+            }
+          ]
+        },
+        {
+          "name": "Área VIP",
+          "tickets": [
+            {
+              "id": "artbat_vip_m",
+              "title": "Área VIP - Masculino",
+              "batch": "3º LOTE",
+              "priceCents": 43000,
+              "feeCents": 6450
+            },
+            {
+              "id": "artbat_vip_f",
+              "title": "Área VIP - Feminino",
+              "batch": "3º LOTE",
+              "priceCents": 43000,
+              "feeCents": 6450
+            }
+          ]
+        },
+        {
+          "name": "Backstage",
+          "tickets": [
+            {
+              "id": "artbat_back_m",
+              "title": "Backstage - Masculino",
+              "batch": "4º LOTE",
+              "priceCents": 60000,
+              "feeCents": 9000
+            },
+            {
+              "id": "artbat_back_f",
+              "title": "Backstage - Feminino",
+              "batch": "3º LOTE",
+              "priceCents": 55000,
+              "feeCents": 8250
+            }
+          ]
+        }
+      ],
+      "time": "22:00H",
+      "minAge": 18,
+      "title": "ARTBAT no Greenvalley"
+    },
+    {
+      "venue": "Greenvalley",
+      "slug": "pawsa-19-year-anniversary",
+      "image": "/imagens/GV-ANNIVERSARY2 (1).avif",
+      "address": "Rua Antônio Lopes Gonçalves Bastos, 1083, Rio Pequeno - Camboriú, SC - CEP: 88343-412",
+      "city": "Camboriú, SC",
+      "description": "A celebração do aniversário do NOSSO Club com um dos maiores nomes do tech-house mundial.",
+      "date": "21/11/2026",
+      "artist": "PAWSA",
+      "sections": [
+        {
+          "name": "Frontstage - Social",
+          "tickets": [
+            {
+              "id": "pawsa_front_soc_m",
+              "title": "Frontstage - Masculino (Social)",
+              "batch": "3º LOTE + 1KG DE ALIMENTO",
+              "priceCents": 22000,
+              "feeCents": 3300
+            },
+            {
+              "id": "pawsa_front_soc_f",
+              "title": "Frontstage - Feminino (Social)",
+              "batch": "2º LOTE + 1KG DE ALIMENTO",
+              "priceCents": 19000,
+              "feeCents": 2850
+            }
+          ]
+        },
+        {
+          "name": "Frontstage - Meia",
+          "tickets": [
+            {
+              "id": "pawsa_front_meia_m",
+              "title": "Frontstage - Masculino (Meia)",
+              "batch": "3º LOTE",
+              "priceCents": 20000,
+              "feeCents": 3000
+            },
+            {
+              "id": "pawsa_front_meia_f",
+              "title": "Frontstage - Feminino (Meia)",
+              "batch": "2º LOTE",
+              "priceCents": 17000,
+              "feeCents": 2550
+            }
+          ]
+        },
+        {
+          "name": "Frontstage - Inteira",
+          "tickets": [
+            {
+              "id": "pawsa_front_int_m",
+              "title": "Frontstage - Masculino (Inteira)",
+              "batch": "3º LOTE",
+              "priceCents": 40000,
+              "feeCents": 6000
+            },
+            {
+              "id": "pawsa_front_int_f",
+              "title": "Frontstage - Feminino (Inteira)",
+              "batch": "2º LOTE",
+              "priceCents": 34000,
+              "feeCents": 5100
+            }
+          ]
+        },
+        {
+          "name": "Área VIP",
+          "tickets": [
+            {
+              "id": "pawsa_vip_m",
+              "title": "Área VIP - Masculino",
+              "batch": "2º LOTE",
+              "priceCents": 39000,
+              "feeCents": 5850
+            },
+            {
+              "id": "pawsa_vip_f",
+              "title": "Área VIP - Feminino",
+              "batch": "2º LOTE",
+              "priceCents": 39000,
+              "feeCents": 5850
+            }
+          ]
+        },
+        {
+          "name": "Backstage",
+          "tickets": [
+            {
+              "id": "pawsa_back_m",
+              "title": "Backstage - Masculino",
+              "batch": "3º LOTE",
+              "priceCents": 55000,
+              "feeCents": 8250
+            },
+            {
+              "id": "pawsa_back_f",
+              "title": "Backstage - Feminino",
+              "batch": "2º LOTE",
+              "priceCents": 50000,
+              "feeCents": 7500
+            }
+          ]
+        }
+      ],
+      "time": "22:00H",
+      "minAge": 18,
+      "title": "Greenvalley 19 Year Anniversary with PAWSA"
+    }
+  ],
+  "defaultEvent": "artbat-no-greenvalley"
+}

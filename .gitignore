@@ -1,0 +1,28 @@
+# Local credentials
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+gateway_config.json
+**/gateway_config.json
+firebase-service-account*.json
+*-firebase-adminsdk-*.json
+serviceAccountKey.json
+.firebase/
+firebase-debug.log
+firestore-debug.log
+.data/
+
+# Generated customer handoff package
+site-de-evento-entrega-cliente.zip
+entrega-cliente/publicacao/
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+node_modules/
+browser/REPORT.md
+browser/manifest.json

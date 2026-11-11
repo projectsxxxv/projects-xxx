@@ -1,0 +1,12 @@
+{
+  "name": "site-de-evento",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site de eventos com checkout próprio, Firestore na Vercel, SQLite local e pagamento PixVault.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}

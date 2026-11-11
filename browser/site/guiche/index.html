@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#080908">
+    <meta name="description" content="Informações do evento e acesso ao checkout oficial da nosso checkout.">
+    <title>Ingressos | Green Valley</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Green Valley — página inicial">GREENVALLEY</a>
+      <a class="back-link" href="/">Voltar ao site</a>
+    </header>
+
+    <main class="page-shell">
+      <p id="page-state" class="page-state" role="status" aria-live="polite">Carregando os dados do evento…</p>
+
+      <div id="event-content" hidden>
+        <section class="event-hero" aria-labelledby="event-title">
+          <div id="event-art-wrap" class="event-art-wrap">
+            <img id="event-image" class="event-image" alt="" fetchpriority="high">
+          </div>
+
+          <div class="event-copy">
+            <h1 id="event-title"></h1>
+
+            <dl class="event-facts">
+              <div class="fact-row">
+                <span class="fact-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"></rect><path d="M7.5 3v4M16.5 3v4M3.5 9.5h17"></path></svg>
+                </span>
+                <div><dt>Data</dt><dd><time id="event-date"></time></dd></div>
+              </div>
+              <div class="fact-row">
+                <span class="fact-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7v5l3.5 2"></path></svg>
+                </span>
+                <div><dt>Horário</dt><dd id="event-time"></dd></div>
+              </div>
+              <div class="fact-row">
+                <span class="fact-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"></path><circle cx="12" cy="10" r="2.2"></circle></svg>
+                </span>
+                <div><dt>Local</dt><dd><span id="event-venue"></span><span class="fact-secondary" id="event-city"></span></dd></div>
+              </div>
+              <div id="age-fact" class="fact-row" hidden>
+                <span class="fact-icon age-icon" aria-hidden="true">18+</span>
+                <div><dt>Classificação</dt><dd id="event-age"></dd></div>
+              </div>
+            </dl>
+
+            <div class="checkout-block">
+              <a id="checkout-link" class="checkout-button">
+                <span>Escolher ingressos</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+              </a>
+              <p id="checkout-note" class="checkout-note">Escolha os ingressos e conclua a compra nesta página.</p>
+              <p id="checkout-unavailable" class="checkout-unavailable" hidden>Os ingressos deste evento ainda não estão disponíveis.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="event-info" aria-label="Informações do evento">
+          <div class="info-section">
+            <h2>Sobre o evento</h2>
+            <p id="event-description"></p>
+          </div>
+          <div class="info-section location-section">
+            <h2>Localização</h2>
+            <p id="event-address"></p>
+          </div>
+        </section>
+      </div>
+
+      <noscript>
+        <p class="page-state page-state-error">Ative o JavaScript para carregar as informações deste evento.</p>
+      </noscript>
+    </main>
+
+    <footer class="site-footer">
+      <p>A venda e o pagamento dos ingressos acontecem neste site.</p>
+      <a href="/">Green Valley</a>
+    </footer>
+  </body>
+</html>

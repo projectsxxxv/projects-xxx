@@ -1,0 +1,18 @@
+services:
+  site:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      SQLITE_DB_PATH: /app/.data/orders.sqlite
+      PIXVAULT_TOKEN: ${PIXVAULT_TOKEN:-}
+      PIXVAULT_CLIENT_ID: ${PIXVAULT_CLIENT_ID:-}
+      PIXVAULT_API_URL: ${PIXVAULT_API_URL:-https://pixvault.one/api/v1/charge}
+      PIXVAULT_STATUS_URL: ${PIXVAULT_STATUS_URL:-}
+    volumes:
+      - orders-data:/app/.data
+
+volumes:
+  orders-data:
