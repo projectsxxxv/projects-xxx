@@ -34,3 +34,6 @@ browser/manifest.json
 
 # Pacotes gerados localmente.
 *.zip
+
+# Vínculo e artefatos locais da Vercel.
+.vercel/
