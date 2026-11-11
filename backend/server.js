@@ -114,7 +114,7 @@ function validCpf(value) {
   return true;
 }
 
-function resolveOrder(eventSlug, items, customer) {
+function resolveOrder(eventSlug, items, customer, options = {}) {
   const event = eventBySlug.get(eventSlug);
   if (!event) throw Object.assign(new Error("Evento indisponível."), { statusCode: 400 });
   if (!Array.isArray(items) || items.length < 1 || items.length > 20) {
@@ -122,7 +122,7 @@ function resolveOrder(eventSlug, items, customer) {
   }
 
   let quantityTotal = 0;
-  let amountCents = 0;
+  let originalAmountCents = 0;
   const lines = [];
   const seen = new Set();
   for (const item of items) {
@@ -139,8 +139,19 @@ function resolveOrder(eventSlug, items, customer) {
     if (!Number.isSafeInteger(unitCents) || unitCents < 1) {
       throw Object.assign(new Error("O preço de um ingresso está configurado incorretamente."), { statusCode: 500 });
     }
-    amountCents += unitCents * quantity;
+    originalAmountCents += unitCents * quantity;
     lines.push({ ticketId, title: found.ticket.title, section: found.section.name, quantity, unitCents });
+  }
+
+  const promo = catalog.promo || {};
+  const couponCode = String(promo.couponCode || "NOPIX").toUpperCase();
+  const discountRate = Number.isFinite(Number(promo.discountPercent)) ? Number(promo.discountPercent) : 0.30;
+  const discountCents = Math.round(originalAmountCents * discountRate);
+  const insuranceUnitCents = Number.isSafeInteger(Number(promo.insuranceCents)) ? Number(promo.insuranceCents) : 1265;
+  const insuranceCents = options.insurance === true ? insuranceUnitCents : 0;
+  const amountCents = originalAmountCents - discountCents + insuranceCents;
+  if (!Number.isSafeInteger(amountCents) || amountCents < 100) {
+    throw Object.assign(new Error("Valor inválido para geração de pagamento Pix."), { statusCode: 400 });
   }
 
   const name = String(customer?.name || "").trim();
@@ -150,7 +161,17 @@ function resolveOrder(eventSlug, items, customer) {
   if (name.length < 3 || name.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 180 || !validCpf(cpf) || phone.length < 10 || phone.length > 13) {
     throw Object.assign(new Error("Confira nome, e-mail, CPF e celular."), { statusCode: 400 });
   }
-  return { event, lines, amountCents, quantityTotal, customer: { name, email, cpf, phone } };
+  return {
+    event,
+    lines,
+    originalAmountCents,
+    discountCents,
+    insuranceCents,
+    coupon: couponCode,
+    amountCents,
+    quantityTotal,
+    customer: { name, email, cpf, phone }
+  };
 }
 
 function gatewayConfig() {
@@ -225,19 +246,41 @@ function statusEndpoint(config, providerId) {
 }
 
 function toCents(value, key, config) {
-  const number = Number(value);
+  if (value === undefined || value === null || value === "") return null;
+  const raw = String(value).trim();
+  const number = Number(raw);
   if (!Number.isFinite(number) || number < 0) return null;
   if (/cents/i.test(key)) return Math.round(number);
-  if (/\/charge(?:\?|$)/i.test(config.createUrl)) return Math.round(number * 100);
+  if (/^\d+\.\d{1,2}$/.test(raw) || /\/charge(?:\?|$)/i.test(config.createUrl)) return Math.round(number * 100);
   return Math.round(number);
 }
 
 function amountFromStatus(payload, config) {
-  for (const key of ["amount_cents", "amountCents", "amount", "value"]) {
+  for (const key of ["amount_cents", "amountCents", "amount", "amount_gross", "value"]) {
     const value = findField(payload, [key]);
     if (value !== undefined) return toCents(value, key, config);
   }
   return null;
+}
+
+function orderAmounts(order) {
+  let originalAmountCents = Number(order.amount_cents) || 0;
+  try {
+    const lines = JSON.parse(order.items_json || "[]");
+    const summed = lines.reduce((sum, l) => sum + (Number(l.unitCents) || 0) * (Number(l.quantity) || 0), 0);
+    if (summed > 0) originalAmountCents = summed;
+  } catch {}
+  const promo = catalog.promo || {};
+  const discountRate = Number.isFinite(Number(promo.discountPercent)) ? Number(promo.discountPercent) : 0.30;
+  const discountCents = Math.round(originalAmountCents * discountRate);
+  const discountedBase = originalAmountCents - discountCents;
+  const insuranceCents = Math.max(0, Number(order.amount_cents) - discountedBase);
+  return {
+    originalAmountCents,
+    discountCents,
+    insuranceCents,
+    coupon: String(promo.couponCode || "NOPIX").toUpperCase()
+  };
 }
 
 function issueTickets(order) {
@@ -264,7 +307,10 @@ function issueTickets(order) {
 
 async function createOrder(req, res) {
   const body = await readBody(req);
-  const details = resolveOrder(body.eventSlug, body.items, body.customer);
+  const details = resolveOrder(body.eventSlug, body.items, body.customer, {
+    insurance: Boolean(body.insurance),
+    coupon: body.coupon
+  });
   const config = gatewayConfig();
   const id = crypto.randomUUID();
   const accessToken = crypto.randomBytes(32).toString("base64url");
@@ -288,7 +334,18 @@ async function createOrder(req, res) {
     if (!pixCode || !providerId) throw new Error("O PixVault não retornou o código Pix e o identificador da cobrança.");
     db.prepare("UPDATE orders SET provider_id = ?, pix_code = ?, status = 'pending', updated_at = ? WHERE id = ?")
       .run(String(providerId), String(pixCode), new Date().toISOString(), id);
-    return json(res, 201, { orderId: id, accessToken, eventTitle: details.event.title, amountCents: details.amountCents, pixCode: String(pixCode), status: "pending" });
+    return json(res, 201, {
+      orderId: id,
+      accessToken,
+      eventTitle: details.event.title,
+      originalAmountCents: details.originalAmountCents,
+      discountCents: details.discountCents,
+      insuranceCents: details.insuranceCents,
+      coupon: details.coupon,
+      amountCents: details.amountCents,
+      pixCode: String(pixCode),
+      status: "pending"
+    });
   } catch (error) {
     db.prepare("UPDATE orders SET status = 'gateway_error', updated_at = ? WHERE id = ?").run(new Date().toISOString(), id);
     console.error("PixVault create failed:", error.message);
@@ -305,16 +362,31 @@ function authorizedOrder(req, orderId) {
   return supplied.length === expected.length && crypto.timingSafeEqual(supplied, expected) ? order : null;
 }
 
+function statusPayload(order, status, tickets = []) {
+  const breakdown = orderAmounts(order);
+  return {
+    orderId: order.id,
+    status,
+    originalAmountCents: breakdown.originalAmountCents,
+    discountCents: breakdown.discountCents,
+    insuranceCents: breakdown.insuranceCents,
+    coupon: breakdown.coupon,
+    amountCents: order.amount_cents,
+    pixCode: order.pix_code,
+    tickets
+  };
+}
+
 async function orderStatus(req, res, orderId) {
   const order = authorizedOrder(req, orderId);
   if (!order) return json(res, 404, { error: "Pedido não encontrado." });
   if (order.status === "paid") {
-    return json(res, 200, { orderId, status: "paid", amountCents: order.amount_cents, pixCode: order.pix_code, tickets: issueTickets(order) });
+    return json(res, 200, statusPayload(order, "paid", issueTickets(order)));
   }
   if (["gateway_error", "failed", "expired", "cancelled", "paid_unverified"].includes(order.status)) {
-    return json(res, 200, { orderId, status: order.status, amountCents: order.amount_cents, pixCode: order.pix_code, tickets: [] });
+    return json(res, 200, statusPayload(order, order.status));
   }
-  if (!order.provider_id) return json(res, 202, { orderId, status: "pending", amountCents: order.amount_cents, pixCode: order.pix_code, tickets: [] });
+  if (!order.provider_id) return json(res, 202, statusPayload(order, "pending"));
 
   try {
     const config = gatewayConfig();
@@ -331,17 +403,18 @@ async function orderStatus(req, res, orderId) {
       const paidAmount = amountFromStatus(payload, config);
       if (paidAmount === null || paidAmount !== order.amount_cents) {
         db.prepare("UPDATE orders SET status = 'paid_unverified', updated_at = ? WHERE id = ?").run(updatedAt, order.id);
-        return json(res, 200, { orderId, status: "paid_unverified", amountCents: order.amount_cents, pixCode: order.pix_code, tickets: [] });
+        return json(res, 200, statusPayload(order, "paid_unverified"));
       }
       db.prepare("UPDATE orders SET status = 'paid', updated_at = ? WHERE id = ?").run(updatedAt, order.id);
       const paidOrder = db.prepare("SELECT * FROM orders WHERE id = ?").get(order.id);
-      return json(res, 200, { orderId, status: "paid", amountCents: order.amount_cents, pixCode: order.pix_code, tickets: issueTickets(paidOrder) });
+      return json(res, 200, statusPayload(paidOrder, "paid", issueTickets(paidOrder)));
     }
     if (["expired", "failed", "cancelled", "canceled", "rejected"].includes(remoteStatus)) {
-      db.prepare("UPDATE orders SET status = ?, updated_at = ? WHERE id = ?").run(remoteStatus === "canceled" ? "cancelled" : remoteStatus, updatedAt, order.id);
-      return json(res, 200, { orderId, status: remoteStatus === "canceled" ? "cancelled" : remoteStatus, amountCents: order.amount_cents, pixCode: order.pix_code, tickets: [] });
+      const finalStatus = remoteStatus === "canceled" ? "cancelled" : remoteStatus;
+      db.prepare("UPDATE orders SET status = ?, updated_at = ? WHERE id = ?").run(finalStatus, updatedAt, order.id);
+      return json(res, 200, statusPayload(order, finalStatus));
     }
-    return json(res, 200, { orderId, status: "pending", amountCents: order.amount_cents, pixCode: order.pix_code, tickets: [] });
+    return json(res, 200, statusPayload(order, "pending"));
   } catch (error) {
     console.error("PixVault status check failed:", error.message);
     return json(res, 502, { error: "Não foi possível consultar o pagamento agora." });

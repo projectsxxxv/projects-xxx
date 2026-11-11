@@ -1,13 +1,29 @@
 {
+  "promo": {
+    "couponCode": "NOPIX",
+    "discountPercent": 0.30,
+    "pixOnly": true,
+    "insuranceCents": 1265
+  },
   "events": [
     {
       "venue": "Greenvalley",
       "slug": "artbat-no-greenvalley",
       "image": "/imagens/brazil 1 v5 4x5 greenvalley (1).avif",
+      "heroBg": "./assets/artbat-bg.jpg",
+      "heroArt": "./assets/artbat-hero.png",
+      "flyerImage": "./assets/artbat-flyer.jpg",
+      "mapImage": "./assets/mapa-greenvalley.jpg",
+      "videoUrl": "/imagens/video/greenvalley_experience_web.mp4",
+      "videoPoster": "/imagens/video/greenvalley_video_poster.jpg",
       "address": "Rua Antônio Lopes Gonçalves Bastos, 1083, Rio Pequeno - Camboriú, SC - CEP: 88343-412",
+      "shortAddress": "Rua Antônio Lopes Gonçalves...",
       "city": "Camboriú, SC",
+      "instagram": "@greenvalleybr",
       "description": "O aguardado retorno de ARTBAT ao Greenvalley já tem data marcada.",
+      "fullDescription": "O Greenvalley recebe ARTBAT no dia 02 de janeiro, em Camboriú (SC). Formado por Artur e Batish, o duo de Kyiv é um dos nomes mais requisitados da música eletrônica mundial: eleito Mixmag Stars of the Year, Breakthrough Artist no Ibiza DJ Awards e #1 do ranking geral de artistas mais vendidos da Beatport.\n\nCom residência Future Rave no Hï Ibiza, set icônico do Cercle no Pão de Açúcar e passagens por EDC, Tomorrowland, Coachella e Time Warp, o duo soma colaborações com David Guetta e Idris Elba, além de comandar o selo UPPERGROUND desde 2021. Esta será a terceira apresentação de ARTBAT no Greenvalley.",
       "date": "02/01/2027",
+      "dayOfWeek": "Sábado",
       "artist": "ARTBAT",
       "sections": [
         {
@@ -114,10 +130,18 @@
       "venue": "Greenvalley",
       "slug": "pawsa-19-year-anniversary",
       "image": "/imagens/GV-ANNIVERSARY2 (1).avif",
+      "flyerImage": "/imagens/GV-ANNIVERSARY2 (1).avif",
+      "mapImage": "./assets/mapa-greenvalley.jpg",
+      "videoUrl": "/imagens/video/greenvalley_experience_web.mp4",
+      "videoPoster": "/imagens/video/greenvalley_video_poster.jpg",
       "address": "Rua Antônio Lopes Gonçalves Bastos, 1083, Rio Pequeno - Camboriú, SC - CEP: 88343-412",
+      "shortAddress": "Rua Antônio Lopes Gonçalves...",
       "city": "Camboriú, SC",
+      "instagram": "@greenvalleybr",
       "description": "A celebração do aniversário do NOSSO Club com um dos maiores nomes do tech-house mundial.",
+      "fullDescription": "Há 19 anos, essa história é escrita por momentos inesquecíveis, grandes encontros e celebrações únicas no melhor club do mundo. No dia 21 de Novembro, comemoramos o 19º aniversário do Greenvalley com um dos grandes fenômenos do tech-house mundial: PAWSA!\n\nPrepare-se para uma noite histórica com a atmosfera inconfundível do Greenvalley, cenografia exclusiva e o sound system impecável que colocou o club no topo global.",
       "date": "21/11/2026",
+      "dayOfWeek": "Sábado",
       "artist": "PAWSA",
       "sections": [
         {

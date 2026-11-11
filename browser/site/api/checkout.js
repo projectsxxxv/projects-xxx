@@ -111,15 +111,17 @@ function statusEndpoint(config, providerId) {
 }
 
 function toCents(value, key, config) {
-  const number = Number(value);
+  if (value === undefined || value === null || value === "") return null;
+  const raw = String(value).trim();
+  const number = Number(raw);
   if (!Number.isFinite(number) || number < 0) return null;
   if (/cents/i.test(key)) return Math.round(number);
-  if (/\/charge(?:\?|$)/i.test(config.createUrl)) return Math.round(number * 100);
+  if (/^\d+\.\d{1,2}$/.test(raw) || /\/charge(?:\?|$)/i.test(config.createUrl)) return Math.round(number * 100);
   return Math.round(number);
 }
 
 function amountFromStatus(payload, config) {
-  for (const key of ["amount_cents", "amountCents", "amount", "value"]) {
+  for (const key of ["amount_cents", "amountCents", "amount", "amount_gross", "value"]) {
     const value = findField(payload, [key]);
     if (value !== undefined) return toCents(value, key, config);
   }
@@ -138,13 +140,13 @@ function validCpf(value) {
   return true;
 }
 
-function resolveOrder(eventSlug, items, customer) {
+function resolveOrder(eventSlug, items, customer, options = {}) {
   const event = eventBySlug.get(eventSlug);
   if (!event) throw appError("Evento indisponível.", 400);
   if (!Array.isArray(items) || items.length < 1 || items.length > 20) throw appError("Selecione ao menos um ingresso.", 400);
 
   let quantityTotal = 0;
-  let amountCents = 0;
+  let originalAmountCents = 0;
   const lines = [];
   const seen = new Set();
   for (const item of items) {
@@ -159,8 +161,19 @@ function resolveOrder(eventSlug, items, customer) {
     if (quantityTotal > 10) throw appError("O limite por pedido é de 10 ingressos.", 400);
     const unitCents = Number(found.ticket.priceCents) + Number(found.ticket.feeCents);
     if (!Number.isSafeInteger(unitCents) || unitCents < 1) throw appError("O preço de um ingresso está configurado incorretamente.", 500);
-    amountCents += unitCents * quantity;
+    originalAmountCents += unitCents * quantity;
     lines.push({ ticketId, title: found.ticket.title, section: found.section.name, quantity, unitCents });
+  }
+
+  const promo = catalog.promo || {};
+  const couponCode = String(promo.couponCode || "NOPIX").toUpperCase();
+  const discountRate = Number.isFinite(Number(promo.discountPercent)) ? Number(promo.discountPercent) : 0.30;
+  const discountCents = Math.round(originalAmountCents * discountRate);
+  const insuranceUnitCents = Number.isSafeInteger(Number(promo.insuranceCents)) ? Number(promo.insuranceCents) : 1265;
+  const insuranceCents = options.insurance === true ? insuranceUnitCents : 0;
+  const amountCents = originalAmountCents - discountCents + insuranceCents;
+  if (!Number.isSafeInteger(amountCents) || amountCents < 100) {
+    throw appError("Valor inválido para geração de pagamento Pix.", 400);
   }
 
   const name = String(customer?.name || "").trim();
@@ -170,7 +183,17 @@ function resolveOrder(eventSlug, items, customer) {
   if (name.length < 3 || name.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 180 || !validCpf(cpf) || phone.length < 10 || phone.length > 13) {
     throw appError("Confira nome, e-mail, CPF e celular.", 400);
   }
-  return { event, lines, amountCents, quantityTotal, customer: { name, email, cpf, phone } };
+  return {
+    event,
+    lines,
+    originalAmountCents,
+    discountCents,
+    insuranceCents,
+    coupon: couponCode,
+    amountCents,
+    quantityTotal,
+    customer: { name, email, cpf, phone },
+  };
 }
 
 async function readBody(req) {
@@ -192,7 +215,10 @@ async function readBody(req) {
 
 async function createOrder(req, res) {
   const body = await readBody(req);
-  const details = resolveOrder(body.eventSlug, body.items, body.customer);
+  const details = resolveOrder(body.eventSlug, body.items, body.customer, {
+    insurance: Boolean(body.insurance),
+    coupon: body.coupon,
+  });
   const config = gatewayConfig();
   const db = firestore();
   const id = crypto.randomUUID();
@@ -207,6 +233,10 @@ async function createOrder(req, res) {
     eventDate: details.event.date,
     buyer: details.customer,
     items: details.lines,
+    originalAmountCents: details.originalAmountCents,
+    discountCents: details.discountCents,
+    insuranceCents: details.insuranceCents,
+    coupon: details.coupon,
     amountCents: details.amountCents,
     providerId: null,
     pixCode: null,
@@ -229,7 +259,18 @@ async function createOrder(req, res) {
     const providerId = findField(payload, ["uuid", "transaction_id", "transactionId", "id"]);
     if (!pixCode || !providerId) throw new Error("O PixVault não retornou o código Pix e o identificador da cobrança.");
     await orderRef.update({ providerId: String(providerId), pixCode: String(pixCode), status: "pending", updatedAt: new Date().toISOString() });
-    return json(res, 201, { orderId: id, accessToken, eventTitle: details.event.title, amountCents: details.amountCents, pixCode: String(pixCode), status: "pending" });
+    return json(res, 201, {
+      orderId: id,
+      accessToken,
+      eventTitle: details.event.title,
+      originalAmountCents: details.originalAmountCents,
+      discountCents: details.discountCents,
+      insuranceCents: details.insuranceCents,
+      coupon: details.coupon,
+      amountCents: details.amountCents,
+      pixCode: String(pixCode),
+      status: "pending",
+    });
   } catch (error) {
     await orderRef.update({ status: "gateway_error", updatedAt: new Date().toISOString() });
     console.error("PixVault create failed:", error.message);
@@ -281,6 +322,10 @@ function statusResponse(order, status, tickets = []) {
   return {
     orderId: order.id,
     status,
+    originalAmountCents: order.originalAmountCents ?? order.amountCents,
+    discountCents: order.discountCents ?? 0,
+    insuranceCents: order.insuranceCents ?? 0,
+    coupon: order.coupon || "NOPIX",
     amountCents: order.amountCents,
     pixCode: order.pixCode,
     tickets,

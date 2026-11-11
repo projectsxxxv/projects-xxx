@@ -4,147 +4,665 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#000000">
-    <title>Ingressos | Green Valley</title>
-    <link rel="stylesheet" href="./styles.css">
+    <title>Ingressos | Guichê Web - Greenvalley</title>
+    <link rel="shortcut icon" href="./assets/gw_favcon.png" type="image/png">
+    <link rel="stylesheet" href="./styles.css?v=20261111-event-page-v3">
     <script src="/_external/qrcode.min.js" defer></script>
-    <script src="./app.js" defer></script>
+    <script src="./app.js?v=20261111-event-page-v3" defer></script>
   </head>
   <body>
-    <header class="gw-header">
-      <a class="gw-brand" href="/" aria-label="GuichêWeb, voltar ao site">
-        <span class="brand-ticket" aria-hidden="true">▣</span><span>guichê<span>web</span></span>
-      </a>
-      <div class="header-actions">
-        <a class="header-back" href="/">← <span>Voltar ao Site</span></a>
-        <span class="header-divider" aria-hidden="true"></span>
-        <span class="header-login">ENTRAR</span>
+    <!-- Top Guichê Web Header (Hub, Evento, Carrinho) -->
+    <header id="gw-header" class="gw-header" hidden>
+      <div class="gw-header-inner">
+        <a id="brand-link" class="gw-brand" href="/" aria-label="Guichê Web, voltar ao site">
+          <img src="./assets/logogw.png" alt="guichêweb">
+        </a>
+
+        <div id="header-search-wrap" class="gw-search-wrap" hidden>
+          <label class="gw-search-box" aria-label="Pesquisar eventos">
+            <input id="event-search" type="search" placeholder="Faça sua pesquisa..." autocomplete="off">
+            <span class="search-icons" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+            </span>
+          </label>
+        </div>
+
+        <div class="header-actions">
+          <a id="header-back-site" class="header-back" href="/">
+            <span aria-hidden="true">&larr;</span> <span>Voltar ao Site</span>
+          </a>
+          <button id="header-user-btn" class="header-entrar" type="button">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>
+            <span id="header-user-label">ENTRAR</span>
+          </button>
+          <a id="header-cart-link" class="header-cart" href="#" aria-label="Ir para o carrinho" hidden>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M7 18a2 2 0 1 0 2 2 2 2 0 0 0-2-2zm10 0a2 2 0 1 0 2 2 2 2 0 0 0-2-2zM7.16 14.26l.03-.12.9-1.64h7.45a2 2 0 0 0 1.75-1.03l3.58-6.49A1 1 0 0 0 20 3.5H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 7 16.5h12v-2H7.42a.25.25 0 0 1-.26-.24z"/></svg>
+            <span id="header-cart-badge" class="header-cart-badge">0</span>
+          </a>
+          <img id="header-flag" class="header-flag" src="./assets/pt.png" alt="PT-BR" hidden>
+        </div>
       </div>
     </header>
 
     <main id="app" class="app-shell">
-      <section id="loading" class="loading-state" role="status">Carregando eventos…</section>
+      <section id="loading" class="loading-state" role="status">Carregando eventos...</section>
       <section id="error" class="error-state" role="alert" hidden></section>
 
+      <!-- STAGE 0: HUB DE EVENTOS (/ingressos/) -->
       <section id="events-view" class="events-view" hidden>
-        <div class="events-heading">
-          <div><p class="eyebrow">GREENVALLEY · CAMBORIÚ/SC</p><h1>Eventos em Destaque</h1></div>
-          <label class="event-search"><span aria-hidden="true">⌕</span><input id="event-search" type="search" placeholder="Pesquisar evento" autocomplete="off"></label>
+        <div class="hub-container">
+          <h1 class="hub-title">Eventos em Destaque</h1>
+          <div id="event-cards" class="events-grid"></div>
+          <p id="empty-search" class="empty-search" hidden>Nenhum evento encontrado para esta pesquisa.</p>
         </div>
-        <div id="event-cards" class="events-grid"></div>
-        <p id="empty-search" class="empty-search" hidden>Nenhum evento encontrado.</p>
       </section>
 
+      <!-- STAGE 1: TELA DO EVENTO E SELEÇÃO DE INGRESSOS -->
       <section id="event-view" class="event-view" hidden>
         <div id="event-hero" class="event-hero">
-          <div class="hero-caption"><span class="hero-mark">GREENVALLEY</span><span id="hero-date"></span><strong id="hero-artist"></strong></div>
+          <div id="event-hero-banner-wrap" class="event-hero-banner-wrap">
+            <img id="hero-art-img" class="hero-art-img" alt="">
+          </div>
+          <div id="event-hero-fallback" class="hero-caption" hidden>
+            <span id="hero-date"></span>
+            <strong id="hero-artist"></strong>
+          </div>
         </div>
-        <div class="event-content">
-          <div class="event-intro">
-            <div class="event-poster-wrap"><img id="event-image" class="event-poster" alt=""><p class="share-label">Compartilhar <span>◉　f　↗</span></p></div>
-            <div class="event-copy">
-              <p class="eyebrow">EVENTO</p><h1 id="event-title"></h1>
-              <p id="event-date" class="event-meta"></p><p id="event-time" class="event-meta"></p>
-              <p id="event-venue" class="event-meta venue-meta"></p><p id="event-address" class="event-address"></p>
-              <p id="event-description" class="event-description"></p>
-              <span id="age-label" class="age-label"></span>
+
+        <div class="event-paper-shell">
+          <div class="torn-edge" aria-hidden="true"></div>
+          <div class="event-content">
+            <div class="event-intro">
+              <div class="event-poster-card">
+                <img id="event-image" class="event-poster" alt="">
+                <div class="share-bar">
+                  <span class="share-label">Compartilhar</span>
+                  <div class="share-icons">
+                    <button type="button" class="share-btn" data-share="whatsapp" title="Compartilhar no WhatsApp" aria-label="Compartilhar no WhatsApp">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12.04 2a9.94 9.94 0 0 0-8.46 15.16L2 22l4.98-1.53A9.95 9.95 0 1 0 12.04 2zm5.8 14.13c-.24.69-1.42 1.3-1.95 1.38-.51.08-1.15.11-1.85-.11-.43-.14-.98-.32-1.69-.63-2.97-1.29-4.91-4.3-5.06-4.5-.15-.2-1.21-1.61-1.21-3.07s.76-2.18 1.03-2.48c.27-.3.59-.38.79-.38h.57c.18 0 .42-.07.66.51.24.59.84 2.04.91 2.19.07.15.12.32.02.52-.1.2-.15.32-.3.5-.15.17-.31.39-.45.52-.15.15-.3.31-.13.61.17.3.77 1.27 1.65 2.05 1.13 1.01 2.09 1.32 2.39 1.47.3.15.47.12.64-.07.17-.2.74-.86.94-1.16.2-.3.4-.25.67-.15.27.1 1.73.82 2.03.96.3.15.5.22.57.34.07.12.07.72-.17 1.41z"/></svg>
+                    </button>
+                    <button type="button" class="share-btn" data-share="facebook" title="Compartilhar no Facebook" aria-label="Compartilhar no Facebook">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7v4h3V22h4v-8.5z"/></svg>
+                    </button>
+                    <button type="button" class="share-btn" data-share="messenger" title="Compartilhar no Messenger" aria-label="Compartilhar no Messenger">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.14 2 11.25c0 2.9 1.45 5.49 3.72 7.19V22l3.42-1.88c.91.25 1.87.38 2.86.38 5.52 0 10-4.14 10-9.25S17.52 2 12 2zm1 12.46-2.55-2.72-4.98 2.72 5.48-5.82 2.61 2.72 4.92-2.72L13 14.46z"/></svg>
+                    </button>
+                    <button type="button" class="share-btn" data-share="copy" title="Copiar link do evento" aria-label="Copiar link do evento">
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24H16.17l-5.21-6.82L5 21.75H1.68l7.73-8.84L1.25 2.25H8.08l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64z"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="event-copy">
+                <h1 id="event-title"></h1>
+                <p id="event-date" class="event-date-line"></p>
+                <p id="event-time" class="event-time-line"></p>
+                <p class="event-venue-line">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                  <span id="event-venue"></span>
+                </p>
+                <div class="event-social-mini">
+                  <a href="https://www.facebook.com/greenvalleybr" target="_blank" rel="noopener noreferrer" aria-label="Facebook Greenvalley">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7v4h3V22h4v-8.5z"/></svg>
+                  </a>
+                  <a href="https://www.instagram.com/greenvalleybr/" target="_blank" rel="noopener noreferrer" aria-label="Instagram Greenvalley">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <nav class="event-tabs" aria-label="Atalhos do evento">
+              <a class="event-tab" href="#tickets-section">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M22 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4a2 2 0 0 1 0 4v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 1 0-4z"/></svg>
+                Ingressos
+              </a>
+              <a class="event-tab" href="#location-section">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                Localização
+              </a>
+              <a class="event-tab" href="#info-section">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>
+                Info
+              </a>
+              <a id="tab-video" class="event-tab" href="#video-section">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                Vídeo
+              </a>
+            </nav>
+
+            <!-- Mapa de Setores 3D + Seleção de Ingressos -->
+            <section id="tickets-section" class="tickets-area" aria-labelledby="tickets-heading">
+              <div id="event-map-wrap" class="event-map-wrap">
+                <img id="event-map" src="./assets/mapa-greenvalley.jpg" alt="Mapa dos setores do evento">
+              </div>
+              <h2 id="tickets-heading">ADQUIRA SEU INGRESSO AGORA</h2>
+              <div id="ticket-sections" class="ticket-sections"></div>
+            </section>
+
+            <!-- Player do evento -->
+            <section id="video-section" class="event-video-section" hidden>
+              <div id="video-embed-wrap" class="video-embed-wrap"></div>
+            </section>
+
+            <!-- Informações detalhadas do evento -->
+            <section id="info-section" class="event-extra-section event-information" aria-labelledby="information-heading">
+              <h2 id="information-heading">INFORMAÇÕES</h2>
+              <div class="information-panel">
+                <p class="information-age">Entrada permitida somente para pessoas com <strong id="age-label">18 anos completos ou mais.</strong></p>
+                <h4 id="information-event-title"></h4>
+                <p id="event-facts" class="information-copy"></p>
+
+                <h4>INFORMAÇÕES</h4>
+                <p class="information-copy">Confira data, horário, local, classificação e setor antes de concluir o pedido. Os valores exibidos em cada ingresso incluem o preço e a taxa de serviço informados no seletor de ingressos.</p>
+
+                <h4>INGRESSO SOCIAL</h4>
+                <p id="event-social-copy" class="information-copy"></p>
+
+                <h4>SOBRE O EVENTO</h4>
+                <p id="event-description" class="event-description"></p>
+
+                <h4>SETORES DISPONÍVEIS</h4>
+                <ul id="event-sector-list" class="information-list"></ul>
+
+                <h4>MEIA-ENTRADA</h4>
+                <p class="information-copy">A categoria de meia-entrada é destinada a quem tem direito conforme a legislação vigente. A apresentação de documento comprobatório poderá ser solicitada no acesso ao evento.</p>
+
+                <h4>COMPRA E ACESSO</h4>
+                <p class="information-copy">Após a confirmação do pagamento via Pix, os ingressos digitais são emitidos para este pedido. Apresente o código de cada ingresso na entrada; cada código é válido para um único acesso.</p>
+
+                <h4>CLASSIFICAÇÃO</h4>
+                <p class="information-copy">A classificação indicativa deste evento é de <span id="information-age-copy">18 anos</span>. A organização poderá solicitar documento oficial com foto para confirmar a idade.</p>
+
+                <h4>ENDEREÇO</h4>
+                <p id="event-address" class="information-copy"></p>
+              </div>
+            </section>
+
+            <!-- Regras do checkout próprio -->
+            <section id="rules-section" class="event-extra-section event-rules" aria-labelledby="rules-heading">
+              <h2 id="rules-heading">Regras para vendas on-line</h2>
+              <ol id="event-rules-copy" class="rules-panel"></ol>
+            </section>
+
+            <!-- Localização -->
+            <section id="location-section" class="event-extra-section event-location" aria-labelledby="location-heading">
+              <h2 id="location-heading">LOCALIZAÇÃO</h2>
+              <div class="location-map" role="img" aria-label="Mapa ilustrativo da região do Greenvalley em Camboriú, Santa Catarina">
+                <svg viewBox="0 0 960 280" aria-hidden="true" focusable="false">
+                  <rect width="960" height="280" fill="#e9edf0" />
+                  <path class="map-park" d="M0 0h220l34 70-56 54 18 54-74 102H0zm750 0h210v130l-92 27-12 77-106 46-48-92 68-82z" />
+                  <path class="map-road" d="M-30 208 110 188 250 208l145-52 118 16 139-70 160 28 181-58M-10 74l164 35 118-25 139 62 104-48 116 48 134-18 205 74M80 300l66-90 53-95 8-125m191 290 16-114 55-81 17-94m183 290 20-103 76-88 51-81m165 275-42-107-8-95 38-90" />
+                  <path class="map-road map-road-secondary" d="m0 145 140-18 100 32 94-45 112 4 116-43 96 33 95-43 207 15M178 280l24-98 102-67 22-96m231 261 1-91 53-63 8-92m172 246-28-99 36-69 83-63" />
+                  <path class="map-water" d="M0 24c87 9 129 43 198 45s117-31 183-25 96 34 166 28 104-31 168-29 118 31 245 13" />
+                  <g class="map-marker" transform="translate(500 125)"><path d="M0-34c-20 0-36 16-36 36 0 27 36 67 36 67S36 29 36 2C36-18 20-34 0-34zm0 49A14 14 0 1 1 0-13a14 14 0 0 1 0 28z"/><circle cy="1" r="5"/></g>
+                  <g class="map-label" transform="translate(530 112)"><rect width="188" height="48" rx="4"/><text x="12" y="20">GREENVALLEY</text><text x="12" y="37">Camboriú · Santa Catarina</text></g>
+                </svg>
+              </div>
+              <p id="location-address" class="location-address"></p>
+              <p class="map-note">Mapa ilustrativo. Confira o endereço do evento antes de sair.</p>
+            </section>
+          </div>
+        </div>
+
+        <!-- Barra Verde Fixa Inferior -->
+        <div id="ticket-dock" class="ticket-dock" hidden>
+          <div class="ticket-dock-inner">
+            <div class="dock-total">
+              <span id="dock-count">0 ITEM NO CARRINHO</span>
+              <strong id="dock-total">R$ 0,00</strong>
+              <span id="dock-fees" class="dock-fees">Taxas: R$ 0,00</span>
+            </div>
+            <div class="dock-action">
+              <span>Tudo pronto?</span>
+              <button id="continue-checkout" class="btn-dock-continuar" type="button">CONTINUAR &gt;</button>
             </div>
           </div>
-          <section class="tickets-area" aria-labelledby="tickets-heading">
-            <h2 id="tickets-heading">ADQUIRA SEU INGRESSO AGORA</h2>
-            <p class="tickets-note">Escolha o setor e a quantidade de ingressos.</p>
-            <div id="ticket-sections" class="ticket-sections"></div>
-          </section>
-        </div>
-        <div id="ticket-dock" class="ticket-dock" hidden>
-          <div class="dock-total"><span id="dock-count">0 ITENS NO CARRINHO</span><strong id="dock-total">R$ 0,00</strong><span id="dock-fees" class="dock-fees"></span></div>
-          <div class="dock-action"><span>Tudo pronto?</span><button id="continue-checkout" class="button-black" type="button">CONTINUAR &gt;</button></div>
         </div>
       </section>
 
+      <!-- STAGE 2: IDENTIFICAÇÃO / LOGIN SEM SENHA -->
+      <section id="login-view" class="login-view" hidden>
+        <div class="login-card">
+          <h1 class="login-title">Faça login em sua conta</h1>
+          <form id="login-form" novalidate>
+            <div class="login-field">
+              <label for="login-identifier">E-mail ou CPF</label>
+              <input
+                type="text"
+                id="login-identifier"
+                placeholder="Digite seu e-mail ou CPF"
+                autocomplete="off"
+                maxlength="100"
+                required
+              >
+              <p id="login-error" class="login-error" role="alert" hidden></p>
+            </div>
+
+            <!-- Campo de Senha mantido comentado conforme alinhamento (reativar caso necessário no futuro)
+            <div class="login-field">
+              <div class="login-label-row">
+                <label for="login-password">Senha</label>
+                <a href="#">Esqueceu sua senha? &gt;</a>
+              </div>
+              <input type="password" id="login-password" placeholder="Digite sua senha">
+            </div>
+            -->
+
+            <button type="submit" id="btn-login-submit" class="btn-login-entrar">Entrar</button>
+
+            <p class="login-signup">
+              Não tem uma conta? <a href="#" id="login-focus-signup">Cadastre-se &gt;</a>
+            </p>
+
+            <div class="login-help-box">
+              <div class="login-help-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="#00c853" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 15.5a1.25 1.25 0 1 1 1.25-1.25A1.25 1.25 0 0 1 12 17.5zm1.42-5.38-.68.47a1.15 1.15 0 0 0-.49 1v.41h-1.7v-.52a2.4 2.4 0 0 1 1.07-2.06l.74-.5a1.37 1.37 0 0 0 .64-1.15 1.38 1.38 0 0 0-1.42-1.36 1.41 1.41 0 0 0-1.45 1.3H8.4a3.11 3.11 0 0 1 3.18-2.92A3 3 0 0 1 14.7 9.9a2.84 2.84 0 0 1-1.28 2.22z"/></svg>
+                <span>Ajuda ao cliente</span>
+              </div>
+              <div class="login-help-buttons">
+                <a href="https://wa.me/5547999034303" target="_blank" rel="noopener noreferrer" class="btn-login-help">Suporte</a>
+                <a href="/politica-de-privacidade.html" class="btn-login-help">Termos e Políticas</a>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="login-footer-bar">
+          <div class="lang-selector">
+            <img src="./assets/pt.png" alt="PT-BR">
+            <span>PT-BR</span>
+            <span aria-hidden="true">⌄</span>
+          </div>
+          <a href="/ingressos/" class="login-footer-logo" title="Voltar aos ingressos" aria-label="Guichê Web">
+            <svg viewBox="0 0 180 32" width="128" height="23" aria-hidden="true">
+              <rect x="0" y="5" width="34" height="22" rx="3" fill="#00b34a"/>
+              <circle cx="0" cy="16" r="3" fill="#f5f7fb"/>
+              <circle cx="34" cy="16" r="3" fill="#f5f7fb"/>
+              <path d="M17 10l1.6 3.5 3.8.5-2.8 2.6.7 3.8L17 18.6l-3.3 1.8.7-3.8-2.8-2.6 3.8-.5z" fill="#ffffff"/>
+              <text x="41" y="23" font-family="Open Sans, Roboto, Arial, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.8" fill="#1e293b">guichê</text>
+              <text x="114" y="23" font-family="Open Sans, Roboto, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="-0.8" fill="#00b34a">web</text>
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      <!-- STAGE 3: CARRINHO -->
       <section id="cart-view" class="cart-view" hidden>
         <div class="cart-main">
           <div class="cart-card">
             <h1 class="cart-title">Carrinho</h1>
             <p class="cart-subtitle">Você tem <strong id="cart-count">0</strong> item(s) no seu carrinho</p>
-            <div class="cart-table-header"><span class="th-item">Ingresso</span><span class="th-qty">Quantidade</span><span class="th-val">Valor</span></div>
+
+            <div class="cart-table-header">
+              <span class="th-item">Ingresso</span>
+              <span class="th-qty">Quantidade</span>
+              <span class="th-val">Valor</span>
+            </div>
+
             <div id="cart-items" class="cart-items"></div>
-            <div class="cart-totals"><span>Taxas: <strong id="cart-fees"></strong></span><span class="cart-grand-total">TOTAL: <strong id="cart-total"></strong></span></div>
-            <p class="cart-terms">Ao clicar no botão FINALIZAR, você confirma os dados do seu pedido.</p>
-            <div class="cart-actions"><a id="back-to-tickets" class="cart-back" href="#">&lt; Voltar</a><button id="to-checkout" class="button-black" type="button">Finalizar &gt;</button></div>
+
+            <div class="cart-totals">
+              <div class="cart-totals-row">
+                <span>Taxas: <span class="help-dot" title="Taxa de serviço e conveniência">?</span></span>
+                <strong id="cart-fees">R$ 0,00</strong>
+              </div>
+              <div class="cart-totals-row cart-grand-total">
+                <span>TOTAL:</span>
+                <strong id="cart-total">R$ 0,00</strong>
+              </div>
+            </div>
+
+            <p class="cart-terms">
+              Ao clicar no botão FINALIZAR, você concorda com os <a href="/politica-de-privacidade.html">termos do contrato</a>
+            </p>
+
+            <div class="cart-actions">
+              <a id="back-to-tickets" class="cart-back" href="#">&lt; Voltar</a>
+              <button id="to-checkout" class="btn-cart-finalizar" type="button">Finalizar &gt;</button>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="checkout-view" class="checkout-view" hidden>
+      <!-- STAGE 4: ESCOLHA FORMA DE PAGAMENTO (CUPOM NOPIX -30% + PIX TRAVADO + INGRESSO PROTEGIDO) -->
+      <section id="checkout-view" class="checkout-split-view" hidden>
         <div class="checkout-layout">
           <div class="checkout-main">
-            <a class="step-back" id="back-to-cart" href="#">← Voltar para o carrinho</a>
-            <h1 class="checkout-title">Dados do comprador</h1>
-            <p class="checkout-intro">Informe os dados que serão associados ao pedido e aos ingressos.</p>
+            <a id="back-to-cart" class="step-back" href="#">&larr; Voltar para o carrinho</a>
+
+            <!-- Cupom NOPIX pré-aplicado -->
+            <div class="cupom-section">
+              <div class="cupom-toggle">Cupom promocional <span>⌄</span></div>
+              <div class="cupom-row">
+                <input type="text" id="cupom-code" class="cupom-input" value="NOPIX" readonly aria-label="Cupom promocional aplicado">
+                <button type="button" class="cupom-btn-applied" id="btn-aplicar-cupom">&#10003; Aplicado</button>
+              </div>
+              <div class="promo-banner-box">
+                <div class="promo-banner-text">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="#1b4332" aria-hidden="true"><path d="M21.41 11.58l-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9a2 2 0 0 0 2.82 0l7-7a2 2 0 0 0 0-2.84zM6.5 8A1.5 1.5 0 1 1 8 6.5 1.5 1.5 0 0 1 6.5 8z"/></svg>
+                  <span>Cupom <strong>NOPIX</strong> aplicado automaticamente! <strong>30% de desconto</strong> ativado no pagamento via Pix.</span>
+                </div>
+                <span class="promo-badge-green">30% OFF</span>
+              </div>
+            </div>
+
+            <!-- Formas de pagamento -->
+            <div class="payment-header-row">
+              <h1 class="payment-title">Escolha a forma de pagamento</h1>
+              <span class="promo-badge-green">&#128274; PROMOÇÃO PIX ATIVA</span>
+            </div>
+            <p class="promo-exclusivity-note">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="#2e7d32" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>
+              Para garantir o desconto de 30% do cupom <strong>NOPIX</strong>, a compra é exclusiva via PIX.
+            </p>
+
+            <div class="payment-options-list">
+              <!-- Pix Ativo e Travado -->
+              <div id="opt-pix" class="payment-option-card selected-pix">
+                <div class="pay-icon-box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="#00bfa5"><path d="M16.57 8.43a2.4 2.4 0 0 0-3.39 0l-1.18 1.18-1.18-1.18a2.4 2.4 0 0 0-3.39 0L4.7 11.16a1.2 1.2 0 0 0 0 1.68l2.73 2.73a2.4 2.4 0 0 0 3.39 0L12 14.39l1.18 1.18a2.4 2.4 0 0 0 3.39 0l2.73-2.73a1.2 1.2 0 0 0 0-1.68l-2.73-2.73zm-5.75 5.96L8.8 12.37a.8.8 0 0 1 0-1.13l2.02-2.02 1.18 1.18v3.99h-1.18zm4.38-2.02-2.02 2.02H12v-3.99l1.18-1.18 2.02 2.02a.8.8 0 0 1 0 1.13z"/></svg>
+                </div>
+                <span class="option-name">Pix - Aprovação instantânea</span>
+                <span class="promo-badge-green ml-auto">-30% NOPIX</span>
+              </div>
+
+              <!-- Cartão de Crédito (Travado na Promoção) -->
+              <div class="payment-option-card locked-opt" data-locked-method="cc" role="button" tabindex="0">
+                <div class="pay-icon-box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="#9ca3af"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 14H4v-6h16zm0-10H4V6h16z"/></svg>
+                </div>
+                <span class="option-name">Cartão de Crédito</span>
+                <span class="locked-note">(Indisponível na promoção)</span>
+              </div>
+
+              <!-- Apple Pay (Travado na Promoção) -->
+              <div class="payment-option-card locked-opt" data-locked-method="apple" role="button" tabindex="0">
+                <div class="pay-icon-box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="#9ca3af"><path d="M16.36 1.64A4.6 4.6 0 0 1 15.29 5a4.1 4.1 0 0 1-3.44 1.37A4.28 4.28 0 0 1 13 2.94a4.5 4.5 0 0 1 3.36-1.3zm3.21 15.4a10.4 10.4 0 0 1-1.36 2.52c-.81 1.15-1.66 2.3-2.99 2.33-1.31.02-1.73-.77-3.23-.77s-1.97.75-3.2.8c-1.29.05-2.27-1.26-3.09-2.4-1.68-2.41-2.96-6.81-1.24-9.79a4.77 4.77 0 0 1 4.02-2.44c1.26-.02 2.45.84 3.22.84.77 0 2.21-1.04 3.73-.89a4.54 4.54 0 0 1 3.55 1.92 4.38 4.38 0 0 0-2.09 3.68 4.28 4.28 0 0 0 2.68 3.99z"/></svg>
+                </div>
+                <span class="option-name">Apple Pay</span>
+                <span class="locked-note">(Indisponível na promoção)</span>
+              </div>
+
+              <!-- Google Pay (Travado na Promoção) -->
+              <div class="payment-option-card locked-opt" data-locked-method="gpay" role="button" tabindex="0">
+                <div class="pay-icon-box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="#9ca3af"><path d="M12.24 10.28v3.72h5.17c-.21 1.35-1.56 3.96-5.17 3.96-3.11 0-5.65-2.58-5.65-5.76s2.54-5.76 5.65-5.76c1.77 0 2.96.75 3.64 1.4l2.48-2.39C16.77 3.97 14.71 3.06 12.24 3.06a9 9 0 1 0 0 18c5.2 0 8.64-3.65 8.64-8.8 0-.59-.06-1.04-.14-1.48h-8.5z"/></svg>
+                </div>
+                <span class="option-name">Google Pay</span>
+                <span class="locked-note">(Indisponível na promoção)</span>
+              </div>
+            </div>
+
+            <p id="promo-lock-notice" class="promo-lock-notice" role="status" hidden>
+              Atenção: A promoção com 30% de desconto (Cupom NOPIX) é válida exclusivamente para pagamentos via PIX.
+            </p>
+
+            <!-- Ingresso Protegido -->
+            <div class="insurance-header">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#6b7280" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Ingresso Protegido</span>
+            </div>
+
+            <div class="insurance-card">
+              <p class="insurance-desc">
+                <b>Situações inesperadas podem acontecer com qualquer um.</b> Previna-se contratando o Ingresso Protegido e garanta o <b>reembolso integral</b> do(s) seu(s) ingresso(s) em caso de imprevistos.
+              </p>
+              <ul class="benefits-list">
+                <li><span>&#10003;</span> Auxílio de Internação hospitalar.</li>
+                <li><span>&#10003;</span> Diagnóstico de Covid.</li>
+                <li><span>&#10003;</span> Desemprego Involuntário.</li>
+                <li><span>&#10003;</span> Doenças Graves.</li>
+              </ul>
+              <button type="button" id="insurance-saiba-mais" class="insurance-link">Saiba Mais</button>
+              <p id="insurance-more-info" class="insurance-more-info" hidden>
+                Cobertura válida até a data do evento conforme condições gerais da apólice para imprevistos elegíveis.
+              </p>
+
+              <div class="insurance-radios">
+                <label class="radio-row">
+                  <input type="radio" name="insurance-opt" value="sim">
+                  <span class="radio-visual" id="radio-sim"></span>
+                  <span>Quero seguir protegido, por apenas <strong id="insurance-price-label">R$ 12,65</strong>.</span>
+                </label>
+                <label class="radio-row">
+                  <input type="radio" name="insurance-opt" value="nao" checked>
+                  <span class="radio-visual" id="radio-nao"></span>
+                  <span>Prefiro seguir desprotegido.</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Sidebar (Stage 4) -->
+          <aside class="order-sidebar">
+            <div class="sidebar-timer-bar">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              <span id="sidebar-timer">14:44</span>
+            </div>
+            <img id="sidebar-image" class="sidebar-event-img" alt="">
+            <div class="sidebar-event-info">
+              <div class="sidebar-event-title" id="sidebar-title"></div>
+              <div class="sidebar-event-venue">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                <span id="sidebar-details"></span>
+              </div>
+              <div id="checkout-lines-wrap" class="sidebar-lines-wrap" hidden>
+                <div id="checkout-lines" class="sidebar-lines"></div>
+              </div>
+            </div>
+
+            <div class="sidebar-footer">
+              <button type="button" id="checkout-summary-toggle" class="sidebar-price-row">
+                <span aria-hidden="true">💵</span>
+                <del id="sidebar-original-val">R$ 0,00</del>
+                <strong id="sidebar-total">R$ 0,00</strong>
+                <span class="chevron-toggle" aria-hidden="true">^</span>
+              </button>
+              <div class="sidebar-promo-tag">&#127991; 30% OFF com cupom NOPIX</div>
+              <p id="checkout-notice" class="checkout-notice" role="status" hidden>
+                O pagamento está em configuração neste servidor. Configure as variáveis PixVault e banco de dados para emitir cobranças reais.
+              </p>
+              <button type="button" id="btn-checkout-continuar" class="btn-continuar active">Continuar</button>
+              <div class="sidebar-dev-by">
+                <span>Desenvolvido por</span>
+                <svg viewBox="0 0 180 32" width="84" height="15" aria-label="guichêweb">
+                  <rect x="0" y="5" width="34" height="22" rx="3" fill="#00a859"/>
+                  <circle cx="0" cy="16" r="3" fill="#f4f6f8"/>
+                  <circle cx="34" cy="16" r="3" fill="#f4f6f8"/>
+                  <path d="M17 10l1.6 3.5 3.8.5-2.8 2.6.7 3.8L17 18.6l-3.3 1.8.7-3.8-2.8-2.6 3.8-.5z" fill="#ffffff"/>
+                  <text x="41" y="23" font-family="Open Sans, Roboto, Arial, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.8" fill="#475569">guichê</text>
+                  <text x="114" y="23" font-family="Open Sans, Roboto, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="-0.8" fill="#00a859">web</text>
+                </svg>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Modal de Confirmação dos Dados do Comprador (Exigido pelo PixVault / Backend) -->
+        <div id="buyer-modal" class="buyer-modal-backdrop" hidden>
+          <div class="buyer-modal-card" role="dialog" aria-modal="true" aria-labelledby="buyer-modal-title">
+            <div class="buyer-modal-header">
+              <h2 id="buyer-modal-title">Dados do comprador para emitir o Pix</h2>
+              <button type="button" id="close-buyer-modal" class="buyer-modal-close" aria-label="Fechar">&times;</button>
+            </div>
+            <p class="buyer-modal-subtitle">
+              Preencha os dados para emissão dos ingressos e cobrança instantânea via PixVault.
+            </p>
             <form id="buyer-form" novalidate>
               <div class="buyer-grid">
-                <label>Nome completo<input id="buyer-name" autocomplete="name" maxlength="120" required></label>
-                <label>E-mail<input id="buyer-email" type="email" autocomplete="email" maxlength="180" required></label>
-                <label>CPF<input id="buyer-cpf" inputmode="numeric" autocomplete="off" maxlength="14" required></label>
-                <label>Celular<input id="buyer-phone" inputmode="tel" autocomplete="tel" maxlength="20" required></label>
+                <label>Nome completo<input id="buyer-name" autocomplete="name" maxlength="120" placeholder="Seu nome completo" required></label>
+                <label>E-mail<input id="buyer-email" type="email" autocomplete="email" maxlength="180" placeholder="seuemail@exemplo.com" required></label>
+                <label>CPF<input id="buyer-cpf" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" required></label>
+                <label>Celular<input id="buyer-phone" inputmode="tel" autocomplete="tel" maxlength="15" placeholder="(47) 99999-9999" required></label>
               </div>
-              <h2 class="payment-title">Escolha a forma de pagamento</h2>
-              <div class="payment-option selected"><span class="pix-symbol" aria-hidden="true">◆</span><span><strong>Pix</strong><small>Aprovação após a confirmação do pagamento</small></span><span class="radio-mark" aria-hidden="true"></span></div>
-              <p id="checkout-notice" class="checkout-notice" role="status" hidden>O pagamento está em configuração. As compras serão liberadas quando a conexão do sistema estiver pronta.</p>
               <p id="form-error" class="form-error" role="alert" hidden></p>
-              <button id="create-order" class="button-green checkout-submit" type="submit">Finalizar pedido</button>
-              <p class="secure-note">Compra processada neste site. A cobrança é enviada ao PixVault e os ingressos são emitidos após a confirmação.</p>
+              <button id="create-order" class="btn-continuar active" type="submit">Gerar QR Code Pix</button>
             </form>
           </div>
-          <aside class="order-sidebar">
-            <div class="sidebar-timer"><span>RESUMO DO PEDIDO</span><span id="sidebar-step">1 de 2</span></div>
-            <div class="sidebar-event"><img id="sidebar-image" alt=""><div><strong id="sidebar-title"></strong><span id="sidebar-details"></span></div></div>
-            <div id="checkout-lines" class="sidebar-lines"></div>
-            <div class="sidebar-total"><span>Total</span><strong id="sidebar-total"></strong></div>
-            <p class="sidebar-fees">As taxas de serviço estão incluídas no total.</p>
-            <div class="sidebar-brand">Desenvolvido por <strong class="mini-brand">▣ guichê<span>web</span></strong></div>
-          </aside>
         </div>
       </section>
 
-      <section id="payment-view" class="checkout-view" hidden>
-        <div class="checkout-layout payment-layout">
-          <div class="payment-main">
-            <div id="payment-pending">
-              <p class="eyebrow">PAGAMENTO VIA PIX</p><h1 class="pix-title">Finalize o pagamento com o Pix</h1>
-              <p class="pix-instructions">Escaneie o QR Code abaixo ou copie o código e cole no aplicativo do seu banco.</p>
-              <img id="pix-qr" class="pix-qr" alt="QR Code Pix para pagamento">
-              <p class="pix-value-label">Valor do pedido</p><strong id="payment-total" class="payment-total"></strong>
-              <label for="pix-code" class="pix-code-label">Pix copia e cola</label>
-              <textarea id="pix-code" rows="3" readonly></textarea>
-              <button id="copy-pix" class="button-green copy-button" type="button">Copiar código de pagamento</button>
-              <p id="payment-status" class="status-line" role="status">Aguardando confirmação do Pix…</p>
-              <p class="order-cancel-note">Pedido <span id="payment-order-id"></span> · A tela atualizará quando o pagamento for confirmado.</p>
+      <!-- STAGE 5: PAGAMENTO PIX (QR CODE + COPIA E COLA) -->
+      <section id="payment-view" class="checkout-split-view" hidden>
+        <div class="checkout-layout">
+          <div class="pix-main">
+            <div id="payment-pending" class="pix-pending-box">
+              <h1 class="pix-title">Finalize o pagamento com o Pix</h1>
+              <p class="pix-subtitle">
+                Para fazer o <strong>pagamento</strong> escaneie o QR Code abaixo <strong>ou</strong> copie o Código e cole em seu aplicativo de pagamento
+              </p>
+
+              <div class="qr-container">
+                <img id="pix-qr" src="./assets/pix_qrcode.png" alt="QR Code Pix para pagamento">
+              </div>
+
+              <!-- Buffer oculto para cópia (mantém a tela limpa sem textarea exposta) -->
+              <input type="text" id="pix-code" class="sr-only-input" readonly tabindex="-1" aria-hidden="true">
+
+              <button id="copy-pix" class="btn-copiar-pix" type="button">Copiar código de pagamento</button>
+
+              <p id="copy-toast" class="copy-toast" role="status" hidden>
+                &#10003; Código Pix copiado para a área de transferência!
+              </p>
+
+              <p id="payment-status" class="pix-status-note" role="status">
+                Aguardando confirmação do pagamento via Pix...
+              </p>
+              <p class="order-cancel-note">
+                O pedido <span id="payment-order-id"></span> será cancelado automaticamente caso o pagamento não seja realizado
+              </p>
             </div>
+
             <div id="tickets-panel" class="tickets-panel" hidden>
-              <p class="eyebrow">PAGAMENTO CONFIRMADO</p><h1>Seus ingressos estão prontos</h1>
-              <p class="pix-instructions">Guarde os códigos abaixo. Cada ingresso pode ser usado uma única vez na entrada.</p>
-              <div id="issued-tickets" class="issued-tickets"></div>
-              <button class="button-black print-button" type="button" onclick="window.print()">Imprimir ingressos</button>
-              <a class="step-back" href="/">Voltar ao site</a>
+              <div class="voucher-card">
+                <div class="voucher-header">
+                  <span>&#10003; Pagamento Confirmado!</span>
+                </div>
+                <div class="voucher-body">
+                  <h2>Seus ingressos estão prontos</h2>
+                  <p class="pix-subtitle">Apresente os códigos abaixo na portaria do evento.</p>
+                  <div id="issued-tickets" class="issued-tickets"></div>
+                  <button class="btn-cart-finalizar print-button" type="button" onclick="window.print()">Imprimir / Salvar Ingressos</button>
+                  <br>
+                  <a class="step-back" href="/ingressos/">Voltar para ingressos</a>
+                </div>
+              </div>
             </div>
           </div>
+
           <aside class="order-sidebar">
-            <div class="sidebar-timer"><span>SEU PEDIDO</span><span>PIX</span></div>
-            <div class="sidebar-event"><img id="payment-image" alt=""><div><strong id="payment-event-title"></strong><span id="payment-event-details"></span></div></div>
-            <div id="payment-lines" class="sidebar-lines"></div>
-            <div class="sidebar-total"><span>Total</span><strong id="payment-sidebar-total"></strong></div>
-            <p class="sidebar-fees">Após a confirmação, seus ingressos ficam disponíveis nesta página.</p>
-            <div class="sidebar-brand">Desenvolvido por <strong class="mini-brand">▣ guichê<span>web</span></strong></div>
+            <div class="sidebar-timer-bar">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              <span id="payment-timer">14:53</span>
+            </div>
+            <img id="payment-image" class="sidebar-event-img" alt="">
+            <div class="sidebar-event-info">
+              <div class="sidebar-event-title" id="payment-event-title"></div>
+              <div class="sidebar-event-venue">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                <span id="payment-event-details"></span>
+              </div>
+              <div id="payment-lines-wrap" class="sidebar-lines-wrap" hidden>
+                <div id="payment-lines" class="sidebar-lines"></div>
+              </div>
+            </div>
+
+            <div class="sidebar-footer">
+              <button type="button" id="payment-summary-toggle" class="sidebar-price-row">
+                <span aria-hidden="true">💵</span>
+                <del id="payment-original-val">R$ 0,00</del>
+                <strong id="payment-sidebar-total">R$ 0,00</strong>
+                <span class="chevron-toggle" aria-hidden="true">^</span>
+              </button>
+              <div class="sidebar-promo-tag">&#127991; 30% OFF com cupom NOPIX</div>
+              <div class="sidebar-dev-by">
+                <span>Desenvolvido por</span>
+                <svg viewBox="0 0 180 32" width="84" height="15" aria-label="guichêweb">
+                  <rect x="0" y="5" width="34" height="22" rx="3" fill="#00a859"/>
+                  <circle cx="0" cy="16" r="3" fill="#f4f6f8"/>
+                  <circle cx="34" cy="16" r="3" fill="#f4f6f8"/>
+                  <path d="M17 10l1.6 3.5 3.8.5-2.8 2.6.7 3.8L17 18.6l-3.3 1.8.7-3.8-2.8-2.6 3.8-.5z" fill="#ffffff"/>
+                  <text x="41" y="23" font-family="Open Sans, Roboto, Arial, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.8" fill="#475569">guichê</text>
+                  <text x="114" y="23" font-family="Open Sans, Roboto, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="-0.8" fill="#00a859">web</text>
+                </svg>
+              </div>
+            </div>
           </aside>
         </div>
       </section>
     </main>
 
-    <footer id="site-footer" class="gw-footer">
-      <div class="footer-social"><span>◎</span><span>f</span><span>▶</span><span>𝕏</span></div>
-      <div class="footer-content"><strong>GREENVALLEY</strong><span>Ingressos e informações dos eventos</span><a href="/">Voltar ao site</a></div>
-      <p class="copyright">© Greenvalley · Compra segura de ingressos</p>
-    </footer>
+    <!-- Floating WhatsApp Button (Event & Cart views) -->
+    <a id="whatsapp-float" class="whatsapp-float" href="https://wa.me/5547999034303" target="_blank" rel="noopener noreferrer" aria-label="Suporte no WhatsApp" hidden>
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M12.04 2a9.94 9.94 0 0 0-8.46 15.16L2 22l4.98-1.53A9.95 9.95 0 1 0 12.04 2zm5.8 14.13c-.24.69-1.42 1.3-1.95 1.38-.51.08-1.15.11-1.85-.11-.43-.14-.98-.32-1.69-.63-2.97-1.29-4.91-4.3-5.06-4.5-.15-.2-1.21-1.61-1.21-3.07s.76-2.18 1.03-2.48c.27-.3.59-.38.79-.38h.57c.18 0 .42-.07.66.51.24.59.84 2.04.91 2.19.07.15.12.32.02.52-.1.2-.15.32-.3.5-.15.17-.31.39-.45.52-.15.15-.3.31-.13.61.17.3.77 1.27 1.65 2.05 1.13 1.01 2.09 1.32 2.39 1.47.3.15.47.12.64-.07.17-.2.74-.86.94-1.16.2-.3.4-.25.67-.15.27.1 1.73.82 2.03.96.3.15.5.22.57.34.07.12.07.72-.17 1.41z"/></svg>
+    </a>
+
+    <!-- Guichê Web Social Bar + Black Multi-Column Footer (Hub, Evento, Carrinho) -->
+    <div id="site-footer" hidden>
+      <section class="social-bar">
+        <div class="social-links">
+          <a href="https://instagram.com/greenvalleybr" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+          </a>
+          <a href="https://facebook.com/greenvalleybr" target="_blank" rel="noopener noreferrer" class="social-link" title="Facebook">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7v4h3V22h4v-8.5z"/></svg>
+          </a>
+          <a href="https://youtube.com/greenvalleybr" target="_blank" rel="noopener noreferrer" class="social-link" title="YouTube">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21.58 7.19a2.75 2.75 0 0 0-1.94-1.95C17.93 4.78 12 4.78 12 4.78s-5.93 0-7.64.46A2.75 2.75 0 0 0 2.42 7.2 28.6 28.6 0 0 0 2 12a28.6 28.6 0 0 0 .42 4.81 2.75 2.75 0 0 0 1.94 1.95c1.71.46 7.64.46 7.64.46s5.93 0 7.64-.46a2.75 2.75 0 0 0 1.94-1.95A28.6 28.6 0 0 0 22 12a28.6 28.6 0 0 0-.42-4.81zM10 15V9l5.2 3-5.2 3z"/></svg>
+          </a>
+          <a href="https://x.com/greenvalleybr" target="_blank" rel="noopener noreferrer" class="social-link" title="X">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+        </div>
+      </section>
+
+      <footer class="gw-footer">
+        <div class="gw-footer-inner">
+          <div class="gw-footer-cols">
+            <div>
+              <h6>Institucional</h6>
+              <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="https://wa.me/5547999034303" target="_blank" rel="noopener noreferrer">Contato</a></li>
+                <li><a href="/blog.html">Blog</a></li>
+              </ul>
+            </div>
+            <div>
+              <h6>Minha Conta</h6>
+              <ul>
+                <li><a id="footer-login-link" href="/ingressos/">Entrar / Identificação</a></li>
+                <li><a id="footer-cart-link" href="/ingressos/">Meu Carrinho</a></li>
+              </ul>
+            </div>
+            <div>
+              <h6>Ajuda</h6>
+              <ul>
+                <li><a href="https://wa.me/5547999034303" target="_blank" rel="noopener noreferrer">Suporte WhatsApp</a></li>
+                <li><a href="/politica-de-privacidade.html">Termos e políticas</a></li>
+              </ul>
+            </div>
+            <div class="footer-badges-col">
+              <div class="badges-row">
+                <img src="./assets/site_protegido.svg" alt="Compra 100% Segura">
+                <img src="./assets/associado_abrape.svg" alt="Associado ABRAPE">
+              </div>
+              <div class="app-title">COMPRE PELO APP</div>
+              <div class="apps-row">
+                <img src="./assets/app_store.png" alt="App Store">
+                <img src="./assets/google_play.png" alt="Google Play">
+              </div>
+            </div>
+          </div>
+          <div class="copyright-section">
+            <p>Todos os preços e condições comerciais estão sujeitos a alteração comercial sem aviso prévio.</p>
+            <p>&copy; Guichê Web &middot; Greenvalley Brasil &middot; Todos os direitos reservados.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
   </body>
 </html>
