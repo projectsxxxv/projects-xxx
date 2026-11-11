@@ -15,10 +15,6 @@ firebase-debug.log
 firestore-debug.log
 .data/
 
-# Generated customer handoff package
-site-de-evento-entrega-cliente.zip
-entrega-cliente/publicacao/
-
 # Local/editor files
 .DS_Store
 Thumbs.db
@@ -26,3 +22,15 @@ desktop.ini
 node_modules/
 browser/REPORT.md
 browser/manifest.json
+
+# Capturas locais para revisão; não fazem parte do site.
+/screenshots/
+/prints/
+/prints_demonstracao/
+/capturas/
+/screenshot-*.png
+/print-*.png
+/captura-*.png
+
+# Pacotes gerados localmente.
+*.zip

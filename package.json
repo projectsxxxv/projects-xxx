@@ -4,7 +4,7 @@
   "private": true,
   "description": "Site de eventos com checkout próprio, Firestore na Vercel, SQLite local e pagamento PixVault.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node backend/server.js"
   },
   "engines": {
     "node": ">=22.13.0"

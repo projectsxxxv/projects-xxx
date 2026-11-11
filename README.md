@@ -2,6 +2,22 @@
 
 Projeto único com site, checkout próprio, API de pedidos e integração PixVault. Na publicação da Vercel, os pedidos e ingressos usam Cloud Firestore pelo Firebase Admin SDK. O frontend nunca acessa o Firestore diretamente.
 
+## Estrutura do repositório
+
+```text
+backend/server.js              Servidor Node com SQLite para VPS e desenvolvimento
+browser/site/                  Frontend e diretório raiz configurado na Vercel
+browser/site/api/              Funções da Vercel com Firebase Admin SDK
+browser/site/ingressos/         Página e catálogo do checkout de ingressos
+browser/site/imagens/           Mídias usadas pelo frontend
+browser/site/imagens/originais/ Fontes de mídia, excluídas dos deploys
+firebase.json                  Configuração da CLI do Firebase
+firestore.rules                Regras de acesso do Firestore
+Dockerfile e compose.yaml       Execução do servidor SQLite em contêiner
+```
+
+O diretório `browser/site` permanece no caminho atual porque é a raiz já configurada no projeto Vercel. A pasta `imagens/originais` guarda materiais-fonte; as páginas usam as cópias otimizadas que ficam diretamente nas pastas do frontend.
+
 ## Produção na Vercel
 
 O projeto Vercel usa `browser/site` como diretório raiz. As funções Node ficam em `browser/site/api/`; o checkout funciona em `/ingressos/` e usa `/api/checkout` para criar pedidos e consultar pagamentos.

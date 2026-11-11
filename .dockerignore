@@ -9,7 +9,6 @@
 gateway_config.json
 **/gateway_config.json
 *.zip
-entrega-cliente
-guicheweb-artbat
-deploy-vps
-imagens
+
+# Originais de mídia mantidos para edição; o site usa as cópias otimizadas.
+/browser/site/imagens/originais/

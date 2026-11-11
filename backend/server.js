@@ -6,7 +6,7 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const { DatabaseSync } = require("node:sqlite");
 
-const ROOT = __dirname;
+const ROOT = path.resolve(__dirname, "..");
 const PUBLIC_DIR = path.join(ROOT, "browser", "site");
 const CATALOG_PATH = path.join(PUBLIC_DIR, "ingressos", "eventos.json");
 const DB_PATH = path.resolve(process.env.SQLITE_DB_PATH || path.join(ROOT, ".data", "orders.sqlite"));

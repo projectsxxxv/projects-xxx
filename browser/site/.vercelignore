@@ -1,5 +1,5 @@
-# Keep the original 1080p master in the repository; deploy the optimized web copy.
-imagens/video/greenvalley_experience.mp4
+# Keep source media in the repository; deploy only optimized frontend copies.
+imagens/originais/
 
 # Keep local credentials and Vercel linkage out of deployments.
 .env
